@@ -12,11 +12,11 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/", (res) => res.send("betel is live"))
+app.get("/", (req, res) => res.send("betel is live"))
 
 app.use('/app', routeUrls);
 
-app.use("*", (res) => res.send("Route does not exist"))
+app.use("*", (req, res) => res.send("Route does not exist"))
 
 app.use(errorHandler)
 
