@@ -8,10 +8,14 @@ const { signup,
     create,
     verify,
     resendLink,
-    send
+    send,
+    confirm,
+    resendOtp,
+    forgot,
+    reset,
+    otp,
+    resendPasswordOtp
 } = require('../controllers/auth');
-
-const sendotp = require('../utils/otp')
 
 const { userProfile } = require('../controllers/user');
 
@@ -25,6 +29,8 @@ router.route('/verify/:confirmAccountToken').post(verify);
 
 router.route("/resend-link/").post(resendLink);
 
+router.route("/resend/").post(resendOtp);
+
 router.route('/forum').get(protect, userProfile);
 
 router.route('/send').post(send);
@@ -33,12 +39,22 @@ router.route('/signup').post(signup);
 
 router.route('/login').post(login);
 
+router.route('/confirm').post(confirm);
+
 router.route('/create').post(protect, create);
 
 router.route('/created').get(created);
 
 router.route('/forgotpassword').post(forgotpassword);
 
+router.route('/forgot').post(forgot);
+
+router.route('/otp').post(otp);
+
+router.route('/resendotp').post(resendPasswordOtp);
+
 router.route('/resetpassword/:resetPasswordToken').put(resetpassword);
+
+router.route('/reset').put(reset);
 
 module.exports = router;
