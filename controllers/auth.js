@@ -5,7 +5,7 @@ const bcrypt = require("bcrypt");
 const sendEmail = require("../utils/sendEmail");
 const errorHandler = require("../middleware/error");
 const { sendConfirmAccountEmail } = require("../utils/confirmEmail");
-const { genOTP } = require('../utils/sendotp');
+const { genOTP } = require("../utils/sendotp");
 
 exports.signup = async (req, res, next) => {
   try {
@@ -81,7 +81,7 @@ exports.verify = async (req, res, next) => {
         else {
           return res
             .status(200)
-          .send({ message: "Your account has been successfully verified" });
+            .send({ message: "Your account has been successfully verified" });
         }
       });
     }
@@ -90,18 +90,18 @@ exports.verify = async (req, res, next) => {
 
 exports.confirm = async (req, res) => {
   try {
-    const { otp }  = req.body;
-    let user = await Otp.findOne({ otp })
+    const { otp, email } = req.body;
+    let user = await Otp.findOne({ otp, email });
 
     if (!user) {
       return res
-      .status(401)
-      .send({ message: "check your mail or get new otp"});
+        .status(401)
+        .send({ message: "check your mail or get new otp" });
     }
     if (user.isVerified) {
-      return res
-        .status(201)
-        .send({ message: "user has been already verified. Please Continue Registration" });
+      return res.status(201).send({
+        message: "user has been already verified. Please Continue Registration",
+      });
     }
 
     if (user.otpExpire < Date.now()) {
@@ -109,7 +109,7 @@ exports.confirm = async (req, res) => {
         message: "otp has expired. Please request a new otp",
         data: user,
       });
-    }else{
+    } else {
       user.isVerified = true;
 
       user.otp = undefined;
@@ -122,9 +122,10 @@ exports.confirm = async (req, res) => {
         }
         // account successfully verified
         else {
-          return res
-            .status(200)
-          .send({ message: "Your account has been successfully verified. Please Continue Registration",});
+          return res.status(200).send({
+            message:
+              "Your account has been successfully verified. Please Continue Registration",
+          });
         }
       });
     }
@@ -135,16 +136,13 @@ exports.confirm = async (req, res) => {
 
 exports.resendLink = function (req, res, next) {
   User.findOne({ email: req.body.email }, function (err, user) {
-    if(err){
+    if (err) {
       return res.status(500).send({
-        message:
-          "An error occured. Please try again",
+        message: "An error occured. Please try again",
       });
     }
     if (user.isVerified) {
-      return res
-        .status(201)
-        .send({
+      return res.status(201).send({
         message: "This account has been already verified. Please log in.",
       });
     }
@@ -159,51 +157,47 @@ exports.resendLink = function (req, res, next) {
 
 exports.resendOtp = function (req, res, next) {
   Otp.findOne({ email: req.body.email }, function (err, user) {
-    if(err){
+    if (err) {
       return res.status(500).send({
-        message:
-          "An error occured. Please try again",
+        message: "An error occured. Please try again",
       });
     }
     // user has been already verified
     if (user === user.isVerified) {
-      return res
-        .status(201)
-        .send({
-          message: "This account has been already verified. Please log in.",
-        });
-    }else{
+      return res.status(201).send({
+        message: "This account has been already verified. Please log in.",
+      });
+    } else {
+      const OTP = genOTP();
 
-      const OTP = genOTP()
-
-      const sendVerifyAccountEmail = async (user) =>{        
-        try {      
+      const sendVerifyAccountEmail = async (user) => {
+        try {
           const message = `<h1>${OTP}</h1>
             <p>Enter the OTP to continue your Registration <br/>
             The OTP will expire in 1hr</p>
-          `
+          `;
           try {
             sendEmail({
               to: user.email,
               subject: "Account Confirmation",
               text: message,
-            })
+            });
           } catch (error) {
-              console.log(error);
-          }          
+            console.log(error);
+          }
         } catch (error) {
           next(error);
         }
-      }
-      user.otp = OTP
-      user.otpExpire = Date.now() + 5 * (60 * 1000)
-      user.save()
+      };
+      user.otp = OTP;
+      user.otpExpire = Date.now() + 5 * (60 * 1000);
+      user.save();
       sendVerifyAccountEmail(user);
 
       res.status(200).json({
         success: true,
         message: "otp re-sent, enter new otp",
-        data: user
+        data: user,
       });
     }
   });
@@ -211,43 +205,42 @@ exports.resendOtp = function (req, res, next) {
 
 exports.resendPasswordOtp = function (req, res, next) {
   Otp.findOne({ email: req.body.email }, function (err, user) {
-    if(err){
+    if (err) {
       return res.status(500).send({
-        message:
-          "An error occured. Please try again",
+        message: "An error occured. Please try again",
       });
     }
 
-    const OTP = genOTP()
+    const OTP = genOTP();
 
-    const sendVerifyAccountEmail = async (user) =>{        
-      try {      
+    const sendVerifyAccountEmail = async (user) => {
+      try {
         const message = `<h1>${OTP}</h1>
           <p>Enter the OTP to change your password  <br/>
           The OTP will expire in 5 mins</p>
-        `
+        `;
         try {
           sendEmail({
             to: user.email,
             subject: "Password Reset",
             text: message,
-          })
+          });
         } catch (error) {
-            console.log(error);
-        }          
+          console.log(error);
+        }
       } catch (error) {
         next(error);
       }
-    }
-    user.resetOtp = OTP
-    user.resetOtpExpire = Date.now() + 5 * (60 * 1000)
-    user.save()
+    };
+    user.resetOtp = OTP;
+    user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
+    user.save();
     sendVerifyAccountEmail(user);
 
     res.status(200).json({
       success: true,
       message: "otp re-sent, enter new otp",
-      data: user
+      data: user,
     });
   });
 };
@@ -308,61 +301,61 @@ exports.create = async (req, res, next) => {
   }
 };
 
-exports.send = async(req, res, next) => {
-
-  const OTP = genOTP()
+exports.send = async (req, res, next) => {
+  const OTP = genOTP();
   try {
     const { email } = req.body;
 
     let emailExists = await Otp.findOne({ email });
     if (emailExists) {
       return errorHandler(
-        { message: "Email already exists, Log in to your account", statusCode: 400 },
+        {
+          message: "Email already exists, Log in to your account",
+          statusCode: 400,
+        },
         res
       );
     }
     const user = new Otp({
       ...req.body,
       otp: OTP,
-      otpExpire: Date.now() + 5 * (60 * 1000)
+      otpExpire: Date.now() + 5 * (60 * 1000),
     });
-    
-    await user.save()
 
-    const sendVerifyAccountEmail = async (user) =>{
+    await user.save();
+
+    const sendVerifyAccountEmail = async (user) => {
       try {
-
-        await user.save()
+        await user.save();
 
         const message = `<h1>${OTP}</h1>
           <p>Enter the OTP to continue your Registration <br/>
           The OTP will expire in 5 mins</p>
-        `
+        `;
         try {
           sendEmail({
             to: user.email,
             subject: "Account Confirmation",
             text: message,
-          })
+          });
         } catch (error) {
           console.log(error);
         }
       } catch (error) {
         next(error);
       }
-    }
+    };
     sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
       data: "Email Sent",
-      user
+      user,
     });
-
   } catch (error) {
     next(error);
   }
-}
+};
 
 exports.forgotpassword = async (req, res, next) => {
   const { email } = req.body;
@@ -381,7 +374,7 @@ exports.forgotpassword = async (req, res, next) => {
 
     await user.save();
 
-    const resetUrl = `http:localhost:3000/passwordreset/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/passwordreset/${resetToken}`;
     const message = `<h1>You have requested a password reset</h1>
             <p>Please go to this link to reset your password</p>
             <a href = ${resetUrl} clicktracking = off> ${resetUrl}</a>
@@ -414,6 +407,12 @@ exports.forgotpassword = async (req, res, next) => {
 exports.forgot = async (req, res, next) => {
   const { email } = req.body;
   try {
+     if (!email) {
+       return errorHandler(
+         { message: "Email is required", statusCode: 422 },
+         res
+       );
+     }
     const user = await Otp.findOne({ email });
 
     if (!user) {
@@ -422,41 +421,38 @@ exports.forgot = async (req, res, next) => {
         res
       );
     }
-    const OTP = genOTP()
+    const OTP = genOTP();
 
-    const sendVerifyAccountEmail = async (user) =>{
+    const sendVerifyAccountEmail = async (user) => {
       try {
-        
-        await user.save()
-    
+        await user.save();
+
         const message = `<h1>${OTP}</h1>
           <p>Enter the OTP to change your password <br/>
           The OTP will expire in 5 mins</p>
-        `
+        `;
         try {
           sendEmail({
             to: user.email,
             subject: "Password Reset",
             text: message,
-          })
-
+          });
         } catch (error) {
-            console.log(error);
+          console.log(error);
         }
       } catch (error) {
-          console.log(error);
+        console.log(error);
       }
-    }
+    };
     user.resetOtp = OTP;
-    user.resetOtpExpire = Date.now() + 5 * (60 * 1000)
-    await user.save()
+    user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
+    await user.save();
     sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
-      data: "Email Sent"
+      data: "Email Sent",
     });
-
   } catch (error) {
     next(error);
   }
@@ -464,39 +460,39 @@ exports.forgot = async (req, res, next) => {
 
 exports.otp = async (req, res, next) => {
   try {
-    const { resetOtp } = req.body;
-    let user = await Otp.findOne({ resetOtp })
+    const { resetOtp, email } = req.body;
+    if (!resetOtp || !email)
+      return res.status(422).send({
+        message: "Email and OTP are required",
+      });
+    let user = await Otp.findOne({ resetOtp, email });
 
     if (!user) {
       return res
-      .status(401)
-      .send({ message: "check your mail or get new otp",
-    });
+        .status(401)
+        .send({ message: "check your mail or get new otp" });
     }
 
     if (user.resetOtpExpire < Date.now()) {
       return res.status(400).send({
         message: "otp has expired. Please request a new otp",
-        data: user,
       });
     }
-    else {
-      user.resetOtp = undefined;
-      user.resetOtpExpire = undefined;
+    user.resetOtp = undefined;
+    user.resetOtpExpire = undefined;
 
-      user.save(function (err) {
-        // error occur
-        if (err) {
-          return res.status(500).send(err.message);
-        }
-        // account successfully verified
-        else {
-          return res
-            .status(200)
-          .send({ message: "Password Changed successfully",});
-        }
-      });
-    }
+    user.save(function (err) {
+      // error occur
+      if (err) {
+        return res.status(500).send({ message: err.message });
+      }
+      // account successfully verified
+      else {
+        return res
+          .status(200)
+          .send({ message: "Password Changed successfully" });
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -561,9 +557,9 @@ exports.reset = async (req, res, next) => {
 };
 
 const sendToken = (user, statusCode, res) => {
-const token = user.getSignedToken();
-res.status(statusCode).json({
-  success: true,
-  token,
-});
+  const token = user.getSignedToken();
+  res.status(statusCode).json({
+    success: true,
+    token,
+  });
 };
