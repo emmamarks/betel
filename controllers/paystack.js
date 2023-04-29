@@ -7,7 +7,7 @@ exports.listBanks = async (req, res, next) => {
     });
     return res.status(200).json(result.data);
   } catch (error) {
-    next(error);
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -26,6 +26,12 @@ exports.resolveAccountNumber = async (req, res, next) => {
     );
     return res.status(200).json(result.data);
   } catch (error) {
-    next(error);
+    return res
+      .status(500)
+      .json({
+        message: error.response?.data?.message
+          ? error.response?.data?.message
+          : error.message,
+      });
   }
 };
