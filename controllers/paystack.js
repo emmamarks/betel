@@ -14,6 +14,10 @@ exports.listBanks = async (req, res, next) => {
 exports.resolveAccountNumber = async (req, res, next) => {
   try {
     const { accountNumber, bankCode } = req.body;
+    if (!accountNumber || !bankCode)
+      return res
+        .status(422)
+        .json({ message: "Account number and bank must be selected" });
     const result = await axios.get(
       `${process.env.PAYSTACK_API}/bank/resolve?account_number=${accountNumber}&bank_code=${bankCode}`,
       {
