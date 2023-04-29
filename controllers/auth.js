@@ -9,34 +9,43 @@ const { genOTP } = require("../utils/sendotp");
 
 exports.signup = async (req, res, next) => {
   try {
+    const {
+      account,
+      email,
+      bankCode,
+      bankId,
+      accountName,
+      bankName,
+      password,
+    } = req.body;
+    if (
+      !account ||
+      !email ||
+      !bankCode ||
+      !bankId ||
+      !accountName ||
+      !bankName ||
+      !password
+    )
+      return res
+        .status(422)
+        .json({ message: "Some required data are missing" });
+    const user = await Otp.findOne({ email });
+    if (!user)
+      return res.status(400).json({ message: "User email has not been added" });
+
+    user.account_name = accountName;
+    user.account_number = account;
+    user.bank_name = bankName;
+    user.bank_id = bankId;
+    user.bank_code = bankCode;
     const saltPassword = await bcrypt.genSalt(10);
-    const securePassword = await bcrypt.hash(req.body.password, saltPassword);
+    const securePassword = await bcrypt.hash(password, saltPassword);
+    user.password = securePassword;
 
-    const user = new User({
-      ...req.body,
-      password: securePassword,
-    });
-
-    const { username, email } = req.body;
-
-    let userExists = await User.findOne({ username });
-    if (userExists) {
-      return errorHandler(
-        { message: "username already taken", statusCode: 400 },
-        res
-      );
-    }
-
-    let emailExists = await User.findOne({ email });
-    if (emailExists) {
-      return errorHandler(
-        { message: "Email already exists", statusCode: 400 },
-        res
-      );
-    }
     await user.save();
-    sendConfirmAccountEmail(user);
     sendToken(user, 201, res);
+    return
   } catch (error) {
     next(error);
   }
@@ -92,9 +101,7 @@ exports.confirm = async (req, res) => {
   try {
     const { otp, email } = req.body;
     if (!email || !otp) {
-      return res
-        .status(422)
-        .send({ message: "Email and OTP are required" });
+      return res.status(422).send({ message: "Email and OTP are required" });
     }
     let user = await Otp.findOne({ otp, email });
 
@@ -412,12 +419,12 @@ exports.forgotpassword = async (req, res, next) => {
 exports.forgot = async (req, res, next) => {
   const { email } = req.body;
   try {
-     if (!email) {
-       return errorHandler(
-         { message: "Email is required", statusCode: 422 },
-         res
-       );
-     }
+    if (!email) {
+      return errorHandler(
+        { message: "Email is required", statusCode: 422 },
+        res
+      );
+    }
     const user = await Otp.findOne({ email });
 
     if (!user) {
