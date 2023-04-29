@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.use(cors());
 
-app.get("/", (req, res) => res.send("decimal god is live"))
+app.get("/", (req, res) => res.send("betel is live"))
 
 app.use('/app', routeUrls);
 
@@ -27,7 +27,7 @@ if(process.env.NODE_ENV === 'production'){
     })
 }
 const port = process.env.PORT || 4000;
-app.listen(port, () => console.log("server is running on port "+port));
+const server = app.listen(port, () => console.log("server is running on port "+port));
 
 mongoose.connect(process.env.aces, {
     useNewUrlParser: true,

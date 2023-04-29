@@ -3,7 +3,6 @@ const ErrorResponse = require('../utils/errorResponse');
 const errorHandler = (err, res) =>{
     let error = {...err};
     error.message = err.message
-
     if(err.code ===11000){
         const message = `Duplicate Field value Entered`;
         error = new ErrorResponse(message, 400);

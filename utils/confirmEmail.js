@@ -1,4 +1,6 @@
+const ErrorResponse = require('./errorResponse');
 const sendEmail = require('./sendEmail');
+const templateCopy = require('../models/users');
 
 exports.sendConfirmAccountEmail = async (user) =>{
 
@@ -10,12 +12,12 @@ exports.sendConfirmAccountEmail = async (user) =>{
 
         const confirmUrl = `${process.env.MAIL_URL}/verify/${confirmToken}`;
         const message = `<h1>Account Confirmation</h1>
-            <p>Click on this link to confirm your Account.
-            The link will expire in 5 mins</p>
+            <p>Click on this link to confirm your Account
+            The link will expire in 1hr</p>
             <a href = ${confirmUrl} clicktracking = off>${confirmUrl}</a>
         `
         try {
-            sendEmail({
+            await sendEmail({
                 to: user.email,
                 subject: "Account Confirmation",
                 text: message,

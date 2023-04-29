@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/users');
+const templateCopy = require('../models/users');
 const ErrorResponse = require('../utils/errorResponse')
 
 exports.protect = async (req, res, next ) =>{
@@ -12,7 +12,7 @@ exports.protect = async (req, res, next ) =>{
             return next(new ErrorResponse("Access Denied, Please Login to your Account", 401));
         }
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const user = await User.findById(decoded.id);
+        const user = await templateCopy.findById(decoded.id);
 
         if(!user){
             return next(new ErrorResponse("User Not Found", 404))
