@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const template = new mongoose.Schema({
+const prediction = new mongoose.Schema({
     booking:{
         type: String,
     },
