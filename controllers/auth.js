@@ -91,6 +91,11 @@ exports.verify = async (req, res, next) => {
 exports.confirm = async (req, res) => {
   try {
     const { otp, email } = req.body;
+    if (!email || !otp) {
+      return res
+        .status(422)
+        .send({ message: "Email and OTP are required" });
+    }
     let user = await Otp.findOne({ otp, email });
 
     if (!user) {
