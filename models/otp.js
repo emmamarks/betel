@@ -50,7 +50,6 @@ const otpSchema = new mongoose.Schema({
     bank_id:{
         type: String
     },
-
     bank_code:{
         type: String
     }
