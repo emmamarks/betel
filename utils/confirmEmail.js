@@ -1,4 +1,3 @@
-const ErrorResponse = require('./errorResponse');
 const sendEmail = require('./sendEmail');
 const templateCopy = require('../models/users');
 
