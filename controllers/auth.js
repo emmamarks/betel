@@ -191,7 +191,7 @@ exports.resendPasswordOtp = function (req, res, next) {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     user.save();
-    //sendVerifyAccountEmail(user);
+    sendVerifyAccountEmail(user);
 
     res.status(200).json({
       success: true,
