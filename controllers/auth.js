@@ -380,7 +380,7 @@ exports.forgot = async (req, res, next) => {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     await user.save();
-    //sendVerifyAccountEmail(user);
+    sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
