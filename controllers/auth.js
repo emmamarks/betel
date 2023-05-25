@@ -191,7 +191,7 @@ exports.resendPasswordOtp = function (req, res, next) {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     user.save();
-    sendVerifyAccountEmail(user);
+    //sendVerifyAccountEmail(user);
 
     res.status(200).json({
       success: true,
@@ -324,6 +324,15 @@ exports.forgot = async (req, res, next) => {
       );
     }
 
+    if (!user.password) {
+      return errorHandler(
+        { message: "Password not found, Kindly Complete your Registration",
+          statusCode: 403
+        },
+        res
+      );
+    }
+
     if (user.otp) {
       return errorHandler(
         {
@@ -362,16 +371,16 @@ exports.forgot = async (req, res, next) => {
             text: message,
           });
         } catch (error) {
-          console.log(error);
+          next (error);
         }
       } catch (error) {
-        console.log(error);
+        next (error);
       }
     };
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     await user.save();
-    sendVerifyAccountEmail(user);
+    //sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
@@ -383,12 +392,14 @@ exports.forgot = async (req, res, next) => {
   }
 };
 
-exports.otp = async (req, res, next) => {
+exports.reset = async (req, res, next) => {
   try {
-    const { resetOtp, email } = req.body;
-    if (!email || !resetOtp)
+    const { resetOtp,
+      password
+    } = req.body;
+    if (!resetOtp || !password)
       return res.status(422).send({
-        message: "Email and OTP are required",
+        message: "Fill all fields",
       });
 
     let user = await User.findOne({ resetOtp });
@@ -404,8 +415,16 @@ exports.otp = async (req, res, next) => {
         data: user,
       });
     }
-    user.resetOtp = undefined;
-    user.resetOtpExpire = undefined;
+
+    if(user){
+      const saltPassword = await bcrypt.genSalt(10);
+      const securePassword = await bcrypt.hash(password, saltPassword);
+
+      user.resetOtp = undefined;
+      user.resetOtpExpire = undefined;
+      user.password = securePassword;
+    }
+    
 
     user.save(function (err) {
       if (err) {
@@ -414,38 +433,15 @@ exports.otp = async (req, res, next) => {
       else {
         return res
           .status(200)
-          .send({ message: "Password can now be Changed" });
+          .send({
+            message: "Password Changed Successfully",
+            success: true,
+            data: user,
+          });
       }
     });
   } catch (error) {
     next(error);
-  }
-};
-
-exports.reset = async (req, res, next) => {
-  try {
-    const { username, password } = req.body
-    
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res
-        .status(400)
-        .send("User not found, kindly register");
-    }
-
-    const saltPassword = await bcrypt.genSalt(10);
-    const securePassword = await bcrypt.hash(password, saltPassword);
-    
-    user.password = securePassword;
-
-    await user.save();
-
-    return res.status(201).json({
-      success: true,
-      data: "Password Reset Success",
-    });
-  } catch (error) {
-    return res.status(500).send(error.message);
   }
 };
 
@@ -454,5 +450,6 @@ const sendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     success: true,
     token,
+    data: user
   });
 };

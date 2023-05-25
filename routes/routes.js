@@ -9,7 +9,6 @@ const {
   resendOtp,
   forgot,
   reset,
-  otp,
   resendPasswordOtp
 } = require("../controllers/auth");
 
@@ -23,7 +22,7 @@ const { created } = require("../controllers/created");
 
 const { listBanks, resolveAccountNumber } = require("../controllers/paystack");
 
-router.route("/resend/").post(resendOtp);
+router.route("/resend").post(resendOtp);
 
 router.route("/home").get(protect, userProfile);
 
@@ -41,11 +40,9 @@ router.route("/created").get(created);
 
 router.route("/forgot").post(forgot);
 
-router.route("/otp").post(otp);
+router.route("/reset").post(reset);
 
 router.route("/resendotp").post(resendPasswordOtp);
-
-router.route("/reset").post(reset);
 
 router.route("/banks").get(listBanks);
 
