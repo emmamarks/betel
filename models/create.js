@@ -1,29 +1,14 @@
 const mongoose = require('mongoose');
 
 const prediction = new mongoose.Schema({
-    booking:{
+    description:{
         type: String,
     },
-    platform:{
+    amount:{
         type: String,
     },
-    first:{
-        type: String,
-    },
-    start:{
-        type: String,  
-    },
-    last:{
-        type: String,
-    },
-    end:{
-        type: String,
-    },
-    subject:{
-        type: String,
-    },
-    message:{
-        type: String,
+    time:{
+        type: Date,
     },
     date:{
         type: Date,
@@ -31,7 +16,7 @@ const prediction = new mongoose.Schema({
     },
    author:{
        type: mongoose.Schema.Types.ObjectId,
-       ref: 'users'
+       ref: 'otp'
    }
 })
 

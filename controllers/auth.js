@@ -191,7 +191,7 @@ exports.resendPasswordOtp = function (req, res, next) {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     user.save();
-    sendVerifyAccountEmail(user);
+    //sendVerifyAccountEmail(user);
 
     res.status(200).json({
       success: true,
@@ -380,7 +380,7 @@ exports.forgot = async (req, res, next) => {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     await user.save();
-    sendVerifyAccountEmail(user);
+    //sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
@@ -439,6 +439,22 @@ exports.reset = async (req, res, next) => {
             data: user,
           });
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.create = async (req, res, next) => {
+  try {
+    const prediction = new predict({
+      ...req.body,
+      author: req.user._id,
+    });
+    await prediction.save();
+    return res.status(201).json({
+      success: true,
+      data: prediction,
     });
   } catch (error) {
     next(error);
