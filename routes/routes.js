@@ -10,12 +10,13 @@ const {
   forgot,
   reset,
   resendPasswordOtp,
-  create
+  create,
 } = require("../controllers/auth");
 
 const { userProfile } = require("../controllers/user");
-//const { predictions } = require('../controllers/predictions');
 
+const { profile } = require("../controllers/profile");
+//const { predictions } = require('../controllers/predictions');
 const { protect } = require("../middleware/protect");
 
 const { created } = require("../controllers/created");
@@ -37,6 +38,8 @@ router.route("/confirm").post(confirm);
 router.route("/create").post(protect, create);
 
 router.route("/created").get(created);
+
+router.route("/profile").get(profile);
 
 router.route("/forgot").post(forgot);
 
