@@ -12,7 +12,7 @@ const {
   resendPasswordOtp,
   create,
   ticket,
-  one
+  one,
 } = require("../controllers/auth");
 
 const { userProfile } = require("../controllers/user");
@@ -55,7 +55,7 @@ router.route("/resendotp").post(resendPasswordOtp);
 
 router.route("/banks").get(listBanks);
 
-router.route("/details/:_id").get(details, userProfile);
+router.route("/details/:_id").get(protect, details);
 
 router.route("/resolve-account-number").post(resolveAccountNumber);
 
