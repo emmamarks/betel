@@ -1,5 +1,5 @@
 const User = require("../models/users");
-const predict = require("../models/create");
+const Predict = require("../models/create");
 const bcrypt = require("bcrypt");
 const sendEmail = require("../utils/sendEmail");
 const errorHandler = require("../middleware/error");
@@ -252,7 +252,7 @@ exports.send = async (req, res, next) => {
       if (emailExists.isVerified === true) {
         return errorHandler(
           {
-            message: "email already verified, Register/Login",
+            message: "Email already verified",
             statusCode: 402,
           },
           res
@@ -446,9 +446,24 @@ exports.reset = async (req, res, next) => {
 };
 
 exports.create = async (req, res, next) => {
+  
+  const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  function generateString(length) {
+    let result = ' ';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+
+    return result;
+  }
+  let ticket = (generateString(6));
+
   try {
-    const prediction = new predict({
+    const prediction = new Predict({
       ...req.body,
+      ticket,
       author: req.user._id,
     });
     await prediction.save();
@@ -460,6 +475,61 @@ exports.create = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.ticket = async (req, res, next) => {
+  try {
+    const { ticket } = req.body;
+    let user = await User.findOne({ ticket });
+    if (!user) {
+      return errorHandler(
+        {
+          message:
+            "No ticket found",
+          statusCode: 404,
+        },
+        res
+      );
+    } 
+    if(user){
+      return res
+        .status(200)
+        .send({
+          message: "Ticket found",
+          success: true,
+          data: user
+        });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.one = async (req, res, next) => {
+  try {
+    let user = await User.findOne({ _id: req.params._id });
+    if (!user) {
+      return errorHandler(
+        {
+          message:
+            "No ticket found",
+          statusCode: 404,
+        },
+        res
+      );
+    } 
+    if(user){
+      return res
+        .status(200)
+        .send({
+          message: "Ticket found",
+          success: true,
+          data: user
+        });
+    }
+  } catch (error) {
+    next(error);
+  }
+}
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedToken();

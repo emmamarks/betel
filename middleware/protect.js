@@ -21,7 +21,7 @@ exports.protect = async (req, res, next ) =>{
 
         if(!user.isVerified){
             return errorHandler({message: "Email not verified, check for otp sent to your mail to verify your account",
-             statusCode: 400}, res)
+             statusCode: 403}, res)
         }
 
         req.user = user;

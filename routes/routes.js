@@ -11,15 +11,19 @@ const {
   reset,
   resendPasswordOtp,
   create,
+  ticket,
+  one
 } = require("../controllers/auth");
 
 const { userProfile } = require("../controllers/user");
 
 const { profile } = require("../controllers/profile");
-//const { predictions } = require('../controllers/predictions');
+
 const { protect } = require("../middleware/protect");
 
 const { created } = require("../controllers/created");
+
+const { details } = require("../controllers/details");
 
 const { listBanks, resolveAccountNumber } = require("../controllers/paystack");
 
@@ -35,11 +39,13 @@ router.route("/login").post(login);
 
 router.route("/confirm").post(confirm);
 
+router.route("/ticket").post(ticket);
+
 router.route("/create").post(protect, create);
 
 router.route("/created").get(created);
 
-router.route("/profile").get(profile);
+router.route("/profile/:author").get(profile);
 
 router.route("/forgot").post(forgot);
 
@@ -49,6 +55,10 @@ router.route("/resendotp").post(resendPasswordOtp);
 
 router.route("/banks").get(listBanks);
 
+router.route("/details/:_id").get(details);
+
 router.route("/resolve-account-number").post(resolveAccountNumber);
+
+router.route("/one/:_id").get(one);
 
 module.exports = router;

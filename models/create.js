@@ -14,6 +14,9 @@ const prediction = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    ticket:{
+        type: String,
+    },
    author:{
        type: mongoose.Schema.Types.ObjectId,
        ref: 'otp'
