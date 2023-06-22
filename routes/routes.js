@@ -55,7 +55,7 @@ router.route("/resendotp").post(resendPasswordOtp);
 
 router.route("/banks").get(listBanks);
 
-router.route("/details/:_id").get(details);
+router.route("/details/:_id").get(details, userProfile);
 
 router.route("/resolve-account-number").post(resolveAccountNumber);
 
