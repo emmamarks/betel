@@ -229,7 +229,7 @@ exports.login = async (req, res) => {
       }
     } else {
       return errorHandler(
-        { message: "User does not exist, Please Sign up", statusCode: 400 },
+        { message: "No Internet", statusCode: 400 },
         res
       );
     }
@@ -380,7 +380,7 @@ exports.forgot = async (req, res, next) => {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     await user.save();
-    //sendVerifyAccountEmail(user);
+    sendVerifyAccountEmail(user);
 
     return res.status(200).json({
       success: true,
@@ -458,7 +458,7 @@ exports.create = async (req, res, next) => {
 
     return result;
   }
-  let ticket = generateString(6);
+  let ticket = (generateString(6));
 
   try {
     const prediction = new Predict({
@@ -479,7 +479,7 @@ exports.create = async (req, res, next) => {
 exports.ticket = async (req, res, next) => {
   try {
     const { ticket } = req.body;
-    let user = await User.findOne({ ticket });
+    let user = await Predict.findOne({ ticket });
     if (!user) {
       return errorHandler(
         {
@@ -494,7 +494,7 @@ exports.ticket = async (req, res, next) => {
       return res
         .status(200)
         .send({
-          message: "Ticket found",
+          message: "Found Ticket",
           success: true,
           data: user
         });
@@ -503,33 +503,6 @@ exports.ticket = async (req, res, next) => {
     next(error);
   }
 };
-
-exports.one = async (req, res, next) => {
-  try {
-    let user = await User.findOne({ _id: req.params._id });
-    if (!user) {
-      return errorHandler(
-        {
-          message:
-            "No ticket found",
-          statusCode: 404,
-        },
-        res
-      );
-    } 
-    if(user){
-      return res
-        .status(200)
-        .send({
-          message: "Ticket found",
-          success: true,
-          data: user
-        });
-    }
-  } catch (error) {
-    next(error);
-  }
-}
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedToken();
