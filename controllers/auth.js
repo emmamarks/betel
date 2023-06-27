@@ -140,7 +140,7 @@ exports.resendOtp = function (req, res, next) {
               text: message,
             });
           } catch (error) {
-            console.log(error);
+            next(error);
           }
         } catch (error) {
           next(error);
@@ -182,7 +182,7 @@ exports.resendPasswordOtp = function (req, res, next) {
             text: message,
           });
         } catch (error) {
-          console.log(error);
+          next(error);
         }
       } catch (error) {
         next(error);
@@ -191,7 +191,7 @@ exports.resendPasswordOtp = function (req, res, next) {
     user.resetOtp = OTP;
     user.resetOtpExpire = Date.now() + 5 * (60 * 1000);
     user.save();
-    //sendVerifyAccountEmail(user);
+    sendVerifyAccountEmail(user);
 
     res.status(200).json({
       success: true,
@@ -205,7 +205,6 @@ exports.login = async (req, res) => {
   try {
     const { username, password } = req.body;
     let user = await User.findOne({ username });
-
     if (!user.isVerified) {
       return errorHandler(
         {
@@ -216,7 +215,6 @@ exports.login = async (req, res) => {
         res
       );
     }
-
     if (user) {
       const validPassword = await bcrypt.compare(password, user.password);
       if (validPassword) {
@@ -227,27 +225,20 @@ exports.login = async (req, res) => {
           res
         );
       }
-    } else {
-      return errorHandler(
-        { message: "No Internet", statusCode: 400 },
-        res
-      );
     }
   } catch (error) {
     return errorHandler(
-      { message: "User exists not, Please Register", statusCode: 504 },
+      { message: "No Internet Connection", statusCode: 504 },
       res
     );
   }
 };
 
 exports.send = async (req, res, next) => {
-  
   const OTP = genOTP();
   try {
     const { email } = req.body;
     let emailExists = await User.findOne({ email });
-
     if (emailExists){
       if (emailExists.isVerified === true) {
         return errorHandler(
@@ -268,19 +259,15 @@ exports.send = async (req, res, next) => {
         );
       }
     }
-
     const user = new User({
       ...req.body,
       otp: OTP,
       otpExpire: Date.now() + 5 * (60 * 1000),
     });
-
     await user.save();
-
     const sendVerifyAccountEmail = async (user) => {
       try {
         await user.save();
-
         const message = `<h1>${OTP}</h1>
           <p>Enter the OTP to continue your Registration <br/>
           The OTP will expire in 5 mins</p>
@@ -292,14 +279,13 @@ exports.send = async (req, res, next) => {
             text: message,
           });
         } catch (error) {
-          console.log(error);
+          next(error);
         }
       } catch (error) {
         next(error);
       }
     };
     sendVerifyAccountEmail(user);
-
     return res.status(200).json({
       success: true,
       data: "Email Sent",
