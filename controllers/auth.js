@@ -441,16 +441,15 @@ exports.create = async (req, res, next) => {
     for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-
     return result;
   }
   let ticket = (generateString(6));
-
   try {
     const prediction = new Predict({
       ...req.body,
       ticket,
       author: req.user._id,
+      email: req.user.email
     });
     await prediction.save();
     return res.status(201).json({
