@@ -58,7 +58,6 @@ exports.signup = async (req, res, next) => {
 
     await user.save();
     sendToken(user, 201, res);
-    return
   } catch (error) {
     next(error);
   }
@@ -432,9 +431,7 @@ exports.reset = async (req, res, next) => {
 };
 
 exports.create = async (req, res, next) => {
-  
   const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-
   function generateString(length) {
     let result = '';
     const charactersLength = characters.length;
@@ -457,7 +454,10 @@ exports.create = async (req, res, next) => {
       data: prediction,
     });
   } catch (error) {
-    next(error);
+    return errorHandler(
+      { message: "No Internet Connection", statusCode: 504 },
+      res
+    ); 
   }
 };
 
@@ -484,6 +484,20 @@ exports.ticket = async (req, res, next) => {
           data: user
         });
     }
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.paid = async (req, res, next) => {
+  try {
+    await Predict.updateOne({ paid: "true" });
+    return res
+      .status(200)
+      .send({
+        message: "Payment Successful",
+        success: true,
+      });
   } catch (error) {
     next(error);
   }

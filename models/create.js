@@ -20,7 +20,11 @@ const prediction = new mongoose.Schema({
     email:{
         type: String,
     },
-   author:{
+    paid:{
+        type: Boolean,
+        default: false,
+    },
+    author:{
        type: mongoose.Schema.Types.ObjectId,
        ref: 'otp'
    }
