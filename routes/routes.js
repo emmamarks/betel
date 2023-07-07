@@ -13,7 +13,9 @@ const {
   create,
   ticket,
   pay,
-  paid
+  paid,
+  accept,
+  accepted
 } = require("../controllers/auth");
 
 const { userProfile } = require("../controllers/user");
@@ -64,6 +66,10 @@ router.route("/tickets/:_id").get(details);
 
 router.route("/pay/:_id").get(details);
 
+router.route("/accept").post(accept);
+
 router.route("/paid").put(paid);
+
+router.route("/accepted").put(accepted);
 
 module.exports = router;

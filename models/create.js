@@ -17,10 +17,17 @@ const prediction = new mongoose.Schema({
     ticket:{
         type: String,
     },
-    email:{
+    email1:{
         type: String,
     },
-    paid:{
+    email2:{
+        type: String,
+    },
+    paid1:{
+        type: Boolean,
+        default: false,
+    },
+    paid2:{
         type: Boolean,
         default: false,
     },

@@ -446,7 +446,7 @@ exports.create = async (req, res, next) => {
       ...req.body,
       ticket,
       author: req.user._id,
-      email: req.user.email
+      email1: req.user.email
     });
     await prediction.save();
     return res.status(201).json({
@@ -491,7 +491,7 @@ exports.ticket = async (req, res, next) => {
 
 exports.paid = async (req, res, next) => {
   try {
-    await Predict.updateOne({ paid: "true" });
+    await Predict.updateOne({ paid1: "true" });
     return res
       .status(200)
       .send({
@@ -502,6 +502,32 @@ exports.paid = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.accepted = async (req, res, next) => {
+  try {
+    await Predict.updateOne({ paid2: "true" });
+    return res
+      .status(200)
+      .send({
+        message: "Payment Successful",
+        success: true,
+      });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.accept = async (req, res, next) => {
+  const { email1 } = req.body
+  try {
+    const user = await Predict.findOne({ email1 })
+    if(user){
+      user.email2 = email
+    }
+  } catch (error) {
+    next(error);
+  }
+}
 
 const sendToken = (user, statusCode, res) => {
   const token = user.getSignedToken();
