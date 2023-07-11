@@ -15,7 +15,7 @@ const {
   pay,
   paid,
   accept,
-  accepted
+  accepted,
 } = require("../controllers/auth");
 
 const { userProfile } = require("../controllers/user");
@@ -25,6 +25,10 @@ const { profile } = require("../controllers/profile");
 const { protect } = require("../middleware/protect");
 
 const { created } = require("../controllers/created");
+
+const { trending } = require("../controllers/trending");
+
+const { hits } = require("../controllers/hits");
 
 const { details } = require("../controllers/details");
 
@@ -47,6 +51,10 @@ router.route("/ticket").post(ticket);
 router.route("/create").post(protect, create);
 
 router.route("/created").get(created);
+
+router.route("/hits").get(hits);
+
+router.route("/trending").get(trending);
 
 router.route("/profile/:author").get(profile);
 

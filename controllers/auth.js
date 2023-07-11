@@ -518,12 +518,18 @@ exports.accepted = async (req, res, next) => {
 };
 
 exports.accept = async (req, res, next) => {
-  const { email1 } = req.body
+  const { email2 } = req.user
   try {
-    const user = await Predict.findOne({ email1 })
+    const user = await Predict.findOne()
     if(user){
-      user.email2 = email
+      user.email2 = email2
     }
+    await user.save();
+    return res.status(200).json({
+      success: true,
+      data: "Bet Accepted",
+      user
+    });
   } catch (error) {
     next(error);
   }
